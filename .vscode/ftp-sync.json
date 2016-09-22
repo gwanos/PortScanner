@@ -1,0 +1,16 @@
+{
+    "remotePath": "/home/lee/Dev",
+    "host": "192.168.237.129",
+    "username": "lee",
+    "password": "rlflsdk12",
+    "port": 21,
+    "protocol": "ftp",
+    "uploadOnSave": false,
+    "passive": false,
+    "debug": false,
+    "privateKeyPath": null,
+    "ignore": [
+        "\\.vscode",
+        "\\.git"
+    ]
+}
