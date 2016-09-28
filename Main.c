@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <netdb.h>
 
@@ -21,11 +22,14 @@ int main( int argc, char *argv[] )
 	int raw_socket, recv_socket;
 	int on = 1;
 	struct hostent * target;
-
+	struct timeval start, end;
+    long mtime, seconds, useconds;
+	
 	pthread_t send_thread, recv_thread;
 	void * thread_return;
-
-	// A critical section begins
+	
+	gettimeofday(&start, NULL);
+	// A critical section begins	
 	pthread_mutex_init(&mutx, NULL);
 
 	if( argc < 2 )
@@ -61,14 +65,19 @@ int main( int argc, char *argv[] )
 	if( ( recv_socket = socket( PF_INET, SOCK_RAW, IPPROTO_TCP ) ) == -1 )
 		DisplayErrorMessage("recv_socket() error.");
 
-	printf( "\n[Scanning...]\n\n" );
+	printf("\n### Starting GHScanner... ###\n");
+	printf("Scan report for %s\n\n", targetIPAddress);
 
 	pthread_create(&send_thread, NULL, SendPacket, (void *)&raw_socket);
 	pthread_create(&recv_thread, NULL, ReceivePacket, (void *)&recv_socket);
 	pthread_join(send_thread, &thread_return);
 	pthread_detach(recv_thread);
 
-	printf( "\n[Finished.]\n\n" );
+	// Calculate scanning time
+	gettimeofday(&end, NULL);
+    seconds  = end.tv_sec  - start.tv_sec;
+    useconds = end.tv_usec - start.tv_usec + 0.5;
+	printf( "\n### Scan finished... Execution time: %ld.%ld seconds ###\n\n", seconds, useconds);
 
 	// A critical section ends
 	pthread_mutex_destroy(&mutx);

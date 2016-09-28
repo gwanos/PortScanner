@@ -18,7 +18,7 @@ extern char targetIPAddress[128];
 extern struct in_addr sourceAddress, destAddress, ip;
 
 const int localPort = 52001;
-const int maxPortNumber = 65366;
+const int maxPortNumber = 10000;
 const int ipVersion = 4;
 const int windowSize = 512;
 const int packetId = 777;
@@ -118,6 +118,7 @@ void * ReceivePacket(void *arg)
 	// Initialize
 	int recv_socket = *((int *)arg); 
 	int length;
+	int portNumber;
 	char recv_packet[100]; 
 	char * protocolName;
 	struct sockaddr_in destInfo;
@@ -130,7 +131,7 @@ void * ReceivePacket(void *arg)
 	length = sizeof(destInfo);
 
 	// Receive and display
-	printf("PORT\tSTATE\n");
+	printf("PORT\t\tSTATE\n");
 	while(1)
 	{
 		recvfrom( recv_socket, recv_packet, sizeof(recv_packet), 0, (struct sockaddr *)&destInfo, &length);
@@ -139,8 +140,12 @@ void * ReceivePacket(void *arg)
 		{
 			if(tcpHeader->syn == 1)	// syn = 1: open / rst = 1 : closed
 			{
-				protocolName = GetProtocolName(ipHeader); 
-				printf("%d/%s\topen\n", ntohs(tcpHeader->source), protocolName);
+				protocolName = GetProtocolName(ipHeader);
+				portNumber = ntohs(tcpHeader->source);
+				if(portNumber > 999)
+					printf("%d/%s\topen\n", portNumber, protocolName);
+				else
+					printf("%d/%s\t\topen\n", portNumber, protocolName);	
 			}
 		}
 	}
